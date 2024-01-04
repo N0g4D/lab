@@ -94,11 +94,15 @@ def checkStrongly(G, k, l):
         neighbors[v].add(u)
         neighbors[u].add(v)
 
+    # DEBUG
+    '''
+    for v in V:
+        print(f"N({v}) = ", neighbors[v])
+    '''
+        
     for v in V:
         counts = 0
-        for w in V:
-            if w == v:
-                continue
+        for w in neighbors[v]:  # Iterate over neighbors of v
 
             common_neighbors = len(neighbors[v].intersection(neighbors[w]))
             
@@ -106,6 +110,7 @@ def checkStrongly(G, k, l):
                 counts += 1
 
         if counts < k:
+            # print("Vertice che fa fallire:", v) #DEBUG
             return False
 
     return True
