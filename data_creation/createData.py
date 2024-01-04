@@ -19,7 +19,7 @@ with open('data.csv', mode='w', newline='') as csv_file:
         surname = fake.last_name()
         age = randint(1, 99)
         zip_code = randint(16000, 16999)
-        credit_card_number = fake.credit_card_number()
+        credit_card_number = randint(1000,1000000)
         disease = possible_disease[randint(0, len(possible_disease) - 1)]
 
         # Write the data to the CSV file

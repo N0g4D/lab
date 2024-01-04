@@ -1,6 +1,6 @@
 import csv
 import pandas as pd
-
+from faker import Faker
 class Tree:
 
     data = []
@@ -52,37 +52,49 @@ EI = ["name", "surname"] # tokenizzarli
 QI = ["age", "zip"]      # generalizzarli o sopprimerli
 SD = ["bank", "disease"] # lasciarli invariati
 
-'''
-0
-1
-2
-3
-0
-1
-2
-3
-4
+#freq = { qi: {} for qi in QI }
 
-0 -> 2
-1 -> 2
-3 -> 2
-4 -> 1
-'''
-
-freq = { qi: {} for qi in QI }
-#print(freq)
+fake = Faker('it_IT')
 
 with open("../data_creation/data.csv", "r") as f:
     for row in csv.DictReader(f):
         D.append(row)
 
-# Tokenizzazione su EI
-for attr in EI:
+#Creo una tabella di corrispondenza per ogni nome
+with open('names.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['name', 'fake_name']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    writer.writeheader()
+    names = set()
     for row in D:
-        row[attr] = row[attr][0] # prendo solo la prima lettera
+        names.add(row['name'])
+    for name in names:
+        writer.writerow({'name': name, 'fake_name': fake.unique.first_name()})
+#Creo una tabella di corrispondenza per ogni cognome
+with open('surnames.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['surname', 'fake_surname']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    writer.writeheader()
+    surnames = set()
+    for row in D:
+        surnames.add(row['surname'])
+    for surname in surnames:
+        writer.writerow({'surname': surname, 'fake_surname': fake.unique.last_name()})
 
-
+# Tokenizzazione su EI
+with open("names.csv", "r") as f, open("surnames.csv", "r") as g:
+    for attr in EI:
+        for row in D:
+            if(attr == "name"):
+                for row2 in csv.DictReader(f):
+                    if(row[attr] == row2['name']):
+                        row[attr] = row2['fake_name']
+            elif(attr == "surname"):
+                for row2 in csv.DictReader(g):
+                    if(row[attr] == row2['surname']):
+                        row[attr] = row2['fake_surname']
 # Generalizzare i QI
+"""
 gens = []
 for attr in QI:
     for row in D:
@@ -91,27 +103,48 @@ for attr in QI:
             freq[attr][val] = 0
 
         freq[attr][val] += 1
-    # Calcolo le freq dell'attr in D
-    #maxVal = max(freq[attr].items)
-    #minVal = min(freq[attr].items)
 
     # Generalizzo
     gens.append(pd.cut(list(freq[attr].values()), bins=4, labels=[1,2,3,4]))
+"""
+anon_level_age = 1
+anon_level_zip = 2
+with open('../data_creation/AnonData.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['name', 'surname', 'age', 'zip', 'bank', 'disease']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    writer.writeheader()
 
-print(gens[0][0])
-
-
-for i,attr in enumerate(QI):
-    for j,row in enumerate(D):
-        for _ in range(gens[i][j]):
+    for i,attr in enumerate(QI):
+        for j,row in enumerate(D):
+            val = int(row[attr])
             if(attr == "age"):
-                D[j][attr] = age.generalize(int(D[j][attr]))
-            else:
-                D[j][attr] = zip.generalize(int(D[j][attr]))
-            ## genVal = age.generalize(freq[attr][row])
-    
-#print("AGE: "+str(freq["age"]))
-#print("Generalized AGE: "+str(freq["age"]))
-#print("ZIP: "+str(freq["zip"]))
+                if(anon_level_age == 1):
+                    row[attr] = age.generalize(val)
+                elif(anon_level_age == 2):
+                    row[attr] = age.generalize(age.generalize(val))
+                elif(anon_level_age == 3):
+                    row[attr] = age.generalize(age.generalize(age.generalize(val)))
+                elif(anon_level_age == 4):
+                    row[attr] = age.generalize(age.generalize(age.generalize(age.generalize(val))))
+            elif(attr == "zip"):
+                if(anon_level_zip == 1):
+                    row[attr] = zip.generalize(val)
+                elif(anon_level_zip == 2):
+                    row[attr] = zip.generalize(zip.generalize(val))
+                elif(anon_level_zip == 3):
+                    row[attr] = zip.generalize(zip.generalize(zip.generalize(val)))
+                elif(anon_level_zip == 4):
+                    row[attr] = zip.generalize(zip.generalize(zip.generalize(zip.generalize(val))))
+                elif(anon_level_zip == 5):
+                    row[attr] = zip.generalize(zip.generalize(zip.generalize(zip.generalize(zip.generalize(val)))))
 
-#print(D)
+            """
+            for _ in range(gens[i][j]):
+                if(attr == "age"):
+                    D[j][attr] = age.generalize(int(D[j][attr]))
+                else:
+                    D[j][attr] = zip.generalize(int(D[j][attr]))
+                ## genVal = age.generalize(freq[attr][row])
+            """
+    for x in D : writer.writerow({'name': x['name'], 'surname': x['surname'], 'age': x['age'], 'zip': x['zip'] , 'bank': x['bank'], 'disease': x['disease']})
+    print("Data written to anonData.csv")
