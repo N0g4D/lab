@@ -8,17 +8,11 @@ import numpy as np
 import pandas as pd
 
 def distance(p1, p2):
-    # TODO: scrivete metrica tra P1 e P2
-    # Euclidean distance between P1 and P2
-    print(p1)
-    print(p2)
     dx = int(p1["age"]) - int(p2["age"])
     dy = int(p1["bank"]) - int(p2["bank"])
     return math.sqrt(dx * dx + dy * dy)
 
 def average(ps):
-    # TODO: scrivere funzione media
-    # Calculate the average of points in ps
     n = len(ps)
     if n == 0:
         return {"age": 0, "bank": 0}
@@ -31,11 +25,11 @@ if __name__ == "__main__":
 
     data = []
     columns = ["age", "bank"]
-    df = pd.read_csv("../data_creation/Anondata.csv", usecols=columns)
+    df = pd.read_csv("../data_creation/data.csv", usecols=columns)
     for d in df.to_dict(orient="records"):
         data.append(d)
     N = len(data)
-    K = 3 # K = 0 -> rosso | K = 1 -> verde | K = 2 -> blue
+    K = 5 # K = 0 -> rosso | K = 1 -> verde | K = 2 -> blue
     # [0,1,2,3,4,5,6,7,8,9,10,...]
     # 2, 5, 9
 
@@ -66,9 +60,8 @@ if __name__ == "__main__":
         
     x = [data[i]["age"] for i in range(N)]
     y = [data[i]["bank"] for i in range(N)] 
-    colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
+    colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255,255,0], [0,255,255]]
     C = np.array([colors[clusters[i]] for i in range(N)]) # assegna il color in base al cluster di appartenenza
     
-    print(clusters)
     plt.scatter(x, y, c=C/255.0) 
     plt.show() 

@@ -86,17 +86,34 @@ def check(G, k, l):
 
 '''
 def checkStrongly(G, k, l):
-    # TODO: check if the graph is (k,l)-anonymous in the strong definition
-    '''
-    to do this copy the function check
-    in the common_neighbors set consider only the edges in the original graph G and not G'
-    i.e. vertices connected by an edge in E' and not in E''
-    '''
-    pass
+    V, E = G
+
+    neighbors = {v: set() for v in V}
+
+    for (u, v) in E:
+        neighbors[v].add(u)
+        neighbors[u].add(v)
+
+    for v in V:
+        counts = 0
+        for w in V:
+            if w == v:
+                continue
+
+            common_neighbors = len(neighbors[v].intersection(neighbors[w]))
+            
+            if common_neighbors >= l:
+                counts += 1
+
+        if counts < k:
+            return False
+
+    return True
+
 
 V = [1,2,3,4,5,6,7,8,9,10]
 
-E = [
+E = [ 
     (1,2),
     (1,3),
     (2,3),
@@ -112,6 +129,20 @@ E = [
 
 G = (V, E)
 
+original_edges = [
+    (1, 2),
+    (1, 3),
+    (2, 3),
+    (3, 5),
+    (4, 7),
+    (5, 7),
+    (5, 8),
+    (6, 8),
+    (7, 8),
+    (8, 9),
+    (8, 10)
+]
+
 print(f"G is ({1},{1})-anonymous", check(G, 1, 1))
 print(f"G is ({2},{1})-anonymous", check(G, 2, 1))
 print(f"G is ({3},{1})-anonymous", check(G, 3, 1))
@@ -119,6 +150,12 @@ print(f"G is ({4},{1})-anonymous", check(G, 4, 1))
 print(f"G is ({5},{1})-anonymous", check(G, 5, 1))
 print(f"G is ({5},{1})-anonymous", check(G, 6, 1))
 
+print(f"G is ({1},{1})-anonymous (strong)", checkStrongly(G, 1, 1))
+print(f"G is ({2},{1})-anonymous (strong)", checkStrongly(G, 2, 1))
+print(f"G is ({3},{1})-anonymous (strong)", checkStrongly(G, 3, 1))
+print(f"G is ({4},{1})-anonymous (strong)", checkStrongly(G, 4, 1))
+print(f"G is ({5},{1})-anonymous (strong)", checkStrongly(G, 5, 1))
+print(f"G is ({5},{1})-anonymous (strong)", checkStrongly(G, 6, 1))
 
 '''
 if G is (k,l) anonymous then is also (1, l)-anonymoius, ..., (k-1, anonymous)
